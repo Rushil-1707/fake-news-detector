@@ -61,7 +61,7 @@ fake-news-detector/
 └── README.md
 ```
 
-## Interview Points
+## Points
 - TF-IDF: assigns higher weight to rare but important words
 - Logistic Regression: outputs probability (0-1) for binary classification
 - Text preprocessing: lowercase, remove URLs, punctuation, stopwords
