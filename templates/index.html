@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fake News Detector</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 680px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 26px;
+      color: #1a202c;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      font-size: 13px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #2d3748;
+      resize: vertical;
+      min-height: 140px;
+      outline: none;
+      transition: border 0.2s;
+      font-family: inherit;
+    }
+
+    textarea:focus { border-color: #667eea; }
+
+    .char-hint {
+      font-size: 11px;
+      color: #a0aec0;
+      margin-top: 5px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #5a67d8; }
+
+    .error {
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      color: #c53030;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    /* Result card */
+    .result-card {
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .result-card.fake {
+      background: #fff5f5;
+      border: 2px solid #fc8181;
+    }
+
+    .result-card.real {
+      background: #f0fff4;
+      border: 2px solid #68d391;
+    }
+
+    .verdict {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .verdict-icon { font-size: 36px; }
+
+    .verdict-label {
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .fake .verdict-label  { color: #e53e3e; }
+    .real .verdict-label  { color: #276749; }
+
+    .verdict-sub {
+      font-size: 13px;
+      color: #718096;
+    }
+
+    .prob-bars { margin-bottom: 16px; }
+
+    .prob-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .prob-label {
+      width: 40px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .bar-bg {
+      flex: 1;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.5s;
+    }
+
+    .bar-fill.fake-bar { background: #fc8181; }
+    .bar-fill.real-bar { background: #68d391; }
+
+    .prob-pct {
+      width: 45px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: right;
+      color: #4a5568;
+    }
+
+    .analyzed-text {
+      font-size: 12px;
+      color: #718096;
+      background: #f7fafc;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .tips {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 20px 28px;
+    }
+
+    .tips h3 {
+      font-size: 13px;
+      color: #4a5568;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .tips ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .tips ul li {
+      font-size: 13px;
+      color: #718096;
+      padding: 4px 0;
+    }
+
+    .tips ul li::before { content: "💡 "; }
+
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #a0aec0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>📰 Fake News Detector</h1>
+  <p class="subtitle">NLP-Powered | TF-IDF + Logistic Regression | Rushil Popat</p>
+
+  <!-- Input Card -->
+  <div class="card">
+    <form action="/predict" method="POST">
+      <label for="news_text">Paste News Article or Headline</label>
+      <textarea name="news_text" id="news_text"
+        placeholder="Paste any news headline or article text here to check if it's real or fake...">{{ result.text if result else '' }}</textarea>
+      <p class="char-hint">Tip: More text = more accurate prediction</p>
+      <button type="submit">🔍 Analyze News</button>
+      {% if error %}
+      <div class="error">⚠️ {{ error }}</div>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Result Card -->
+  {% if result %}
+  <div class="result-card {{ 'fake' if result.label == 'FAKE' else 'real' }}">
+    <div class="verdict">
+      <span class="verdict-icon">{{ '🚨' if result.label == 'FAKE' else '✅' }}</span>
+      <div>
+        <div class="verdict-label">{{ result.label }} NEWS</div>
+        <div class="verdict-sub">Confidence: {{ result.confidence }}%</div>
+      </div>
+    </div>
+
+    <div class="prob-bars">
+      <div class="prob-row">
+        <span class="prob-label" style="color:#e53e3e">FAKE</span>
+        <div class="bar-bg">
+          <div class="bar-fill fake-bar" style="width:{{ result.fake_prob }}%"></div>
+        </div>
+        <span class="prob-pct">{{ result.fake_prob }}%</span>
+      </div>
+      <div class="prob-row">
+        <span class="prob-label" style="color:#276749">REAL</span>
+        <div class="bar-bg">
+          <div class="bar-fill real-bar" style="width:{{ result.real_prob }}%"></div>
+        </div>
+        <span class="prob-pct">{{ result.real_prob }}%</span>
+      </div>
+    </div>
+
+    <div class="analyzed-text">"{{ result.text }}"</div>
+  </div>
+  {% endif %}
+
+  <!-- Tips -->
+  <div class="tips">
+    <h3>How It Works</h3>
+    <ul>
+      <li>Text is cleaned — punctuation, URLs, and stopwords removed</li>
+      <li>TF-IDF converts text into numerical feature vectors</li>
+      <li>Logistic Regression classifies it as REAL or FAKE</li>
+      <li>Confidence score shows how certain the model is</li>
+    </ul>
+  </div>
+
+  <p class="footer">Built by Rushil Popat | 23IT102 | CSPIT CHARUSAT</p>
+</div>
+</body>
+</html>
